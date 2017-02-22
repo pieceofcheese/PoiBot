@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"time"
+	"os"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -11,6 +12,7 @@ import (
 var (
 	Token string
 	BotId string
+	PoiImage string = "/home/linhai/go/assets/poi.jpg"
 )
 
 func init() {
@@ -72,9 +74,23 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "poi" {
-		_, err := s.ChannelMessageSend(m.ChannelID, "Poi!")
+		/*_, err := s.ChannelMessageSend(m.ChannelID, "Poi!")
 		if err != nil {
 			fmt.Println("ERR: Failed to send message,", err)
+		}*/
+
+		image, err := os.Open(PoiImage)
+
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, "I couldn't find the image poi :(")
+			fmt.Println("%s\n", PoiImage)
+			return
+		}
+
+		_, err = s.ChannelFileSendWithMessage(m.ChannelID, "Poi!", "poi0.jpg", image)
+		if err != nil {
+			fmt.Println("ERR: Failed to send message,", err)
+			return
 		}
 	}
 
