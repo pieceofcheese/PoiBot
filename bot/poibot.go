@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"os"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -73,7 +74,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if m.Content == "poi" {
+	if strings.Contains(m.Content, "poi") {
 		/*_, err := s.ChannelMessageSend(m.ChannelID, "Poi!")
 		if err != nil {
 			fmt.Println("ERR: Failed to send message,", err)
@@ -87,7 +88,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		_, err = s.ChannelFileSendWithMessage(m.ChannelID, "Poi!", "poi0.jpg", image)
+		_, err = s.ChannelFileSendWithMessage(m.ChannelID, "", "poi0.jpg", image)
 		if err != nil {
 			fmt.Println("ERR: Failed to send message,", err)
 			return
