@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 	"os"
-	"strings"
+	"regexp"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -68,13 +68,27 @@ func main() {
 //Handles any messageCreated events
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
+	poiRegex, _ := regexp.Compile(".*[pP][oO][iI].*")
+	whatIsPoiRegex, _ := regexp.Compile("[wW][hH][aA][tT] [iI][sS] [pP][oO][iI]\\??")
+
 	// Ignore all messages created by bot
 	// AVOIDS INFINITE CALLS
 	if m.Author.ID == BotId {
 		return
 	}
 
-	if strings.Contains(m.Content, "poi") {
+	// Received a message
+        fmt.Printf("%20s %20s %20s > %s\n", m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
+
+	if whatIsPoiRegex.MatchString(m.Content) {
+                _, err := s.ChannelMessageSend(m.ChannelID, "Poi is poi.")
+                if err != nil {
+                        fmt.Println("ERR: failed to send message")
+                }
+		return
+        }
+
+	if poiRegex.MatchString(m.Content) {
 		/*_, err := s.ChannelMessageSend(m.ChannelID, "Poi!")
 		if err != nil {
 			fmt.Println("ERR: Failed to send message,", err)
@@ -93,8 +107,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			fmt.Println("ERR: Failed to send message,", err)
 			return
 		}
+		return
 	}
-
-	// Received a message
-	fmt.Printf("%20s %20s %20s > %s\n", m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
 }
