@@ -6,6 +6,8 @@ import (
 	"time"
 	"os"
 	"regexp"
+	"io/ioutil"
+	"log"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -17,8 +19,16 @@ var (
 	POIINSTRUCTIONS = "poi_instructions: Instructions Poi!\npoi: POI!\nlolicon: For terrible people Poi!\ngo sleep: I'll tell people to sleep!\nfuck: POI!\nmistakes were made: mistakes poi\npoi_lewd: For lewd people poi.\npoi_tired: I'm tired poi.\npoi_memes: Memes poi."
 
 
+	// Where the directories for images should be placed
+	// images should be in directories with their relevant commands
+	// assets/instruction/image
+	// e.g. /assets/poi/poi.jpg
 	assetRoot string = "/home/linhai/go/assets/"
-	imagePaths [17]string
+
+	// read from a file for the regexes?
+	assets map[string][]string = make(map[string][]string)
+	
+	imagePaths [18]string
 
 	lewd [4]string
 	lewdct int = 0
@@ -32,9 +42,30 @@ var (
 	lolicon [2]string
 	loliconct int = 0
 
+	fuck [2]string
+	fuckct int = 0
+
 )
 
 func init() {
+
+	dirs, rootDirErr := ioutil.ReadDir(assetRoot)
+
+	if rootDirErr != nil {
+		log.Fatal(rootDirErr)
+	}
+
+	for _, d := range dirs {
+		if d.IsDir() {
+			files, _ := ioutil.ReadDir(assetRoot + d.Name())
+			var tempArr []string
+			for _, f := range files {
+				tempArr = append(tempArr, f.Name())
+				fmt.Println("Loaded %s", assetRoot + d.Name() + "/" + f.Name())
+			}
+			assets[d.Name()] = tempArr
+		}
+	}
 
 	flag.StringVar(&Token, "t", "", "Bot Token")
 	flag.Parse()
@@ -57,6 +88,7 @@ func init() {
         imagePaths[14] = "tired.jpg"
         imagePaths[15] = "traps_gay.png"
         imagePaths[16] = "watching.jpg"
+	imagePaths[17] = "fuck.jpg"
 
 	lewd[0] = imagePaths[1]
         lewd[1] = imagePaths[4]
@@ -72,6 +104,9 @@ func init() {
 
 	lolicon[0] = imagePaths[7]
         lolicon[1] = imagePaths[10]
+
+	fuck[0] = imagePaths[2]
+	fuck[1] = imagePaths[17]
 
 }
 
@@ -121,15 +156,15 @@ func main() {
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	instructionRegex, _ := regexp.Compile("^poi_instructions$")
-	poiRegex, _ := regexp.Compile("^[pP][oO][iI]+$")
+	poiRegex, _ := regexp.Compile("(^[pP][oO][iI]( [pP][oO][iI])*$)|(^[cC][aA][nN][cC][eE][rR]$)")
 	whatIsPoiRegex, _ := regexp.Compile("[wW][hH][aA][tT] [iI][sS] [pP][oO][iI]\\??")
-	lewdRegex, _ := regexp.Compile("^poi_lewd$")
-	fuckRegex, _ := regexp.Compile("^[fF][uU][cC][kK]$")
-	tiredRegex, _ := regexp.Compile("^poi_tired$")
-	sleepRegex, _ := regexp.Compile("^[gG][oO] [sS][lL][eE]{2}[pP][!]?$")
-	memeRegex, _ := regexp.Compile("^poi_memes$")
-	mistakesRegex, _ := regexp.Compile("^mistakes were made$")
-	loliconRegex, _ := regexp.Compile("^lolicon$")
+//	lewdRegex, _ := regexp.Compile("^poi_lewd$")
+//	fuckRegex, _ := regexp.Compile("^[fF][uU][cC][kK]$")
+//	tiredRegex, _ := regexp.Compile("^poi_tired$")
+//	sleepRegex, _ := regexp.Compile("^[gG][oO] [sS][lL][eE]{2}[pP][!]?$")
+//	memeRegex, _ := regexp.Compile("^poi_memes$")
+//	mistakesRegex, _ := regexp.Compile("^mistakes were made$")
+//	loliconRegex, _ := regexp.Compile("^lolicon$")
 	
 
 	// Ignore all messages created by bot
@@ -161,10 +196,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// POI
 	if poiRegex.MatchString(m.Content) {
+		fmt.Println("POI!")
 		singleMessage(s, m, imagePaths[0])
 		return
 	}
-
+/*
 	// lewds
 	if lewdRegex.MatchString(m.Content) {
 		manyMessage(s, m, lewd[:], &lewdct)
@@ -173,7 +209,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// fuck
 	if fuckRegex.MatchString(m.Content) {
-		singleMessage(s, m, imagePaths[2]) 
+		manyMessage(s, m, fuck[:], &fuckct) 
                 return
 	}
 
@@ -206,11 +242,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		singleMessage(s, m, imagePaths[9])
                 return
         }
-
+*/
 }
 
 func manyMessage(s *discordgo.Session, m *discordgo.MessageCreate, imgs []string, ct *int) bool {
-
+/*
     if(*ct+1 >= len(imgs)) {
         *ct = 0
     } else {
@@ -230,7 +266,7 @@ func manyMessage(s *discordgo.Session, m *discordgo.MessageCreate, imgs []string
         fmt.Println("ERR: Failed to send message,", err)
         return false
     }
-
+*/
     return true
 
 
